@@ -1,11 +1,13 @@
-# Documentation Assets (Zensical)
+# Documentation Theme (Zensical)
 
-Stylesheets, fonts and images for Dyalog project documentation built with
-[Zensical](https://zensical.org/) — the successor to Material for MkDocs.
+The Dyalog house style for project documentation built with
+[Zensical](https://zensical.org/), the successor to Material for MkDocs:
+stylesheet, fonts and images.
 
 This is the Zensical counterpart to
-[`documentation-assets`](https://github.com/Dyalog/documentation-assets), which
-targets Material for MkDocs. The palette here is taken from the [Dyalog brand
+[`documentation-theme`](https://github.com/Dyalog/documentation-theme), which
+targets Material for MkDocs and stays in use for MkDocs projects: one style
+repository per generator. The palette here is taken from the [Dyalog brand
 guidelines](https://dyalogprod.gos.dyalog.com/about/brand-guidelines/); the
 fonts and images are carried over from the MkDocs asset set.
 
@@ -51,22 +53,32 @@ font.
 ## Using it
 
 Zensical only copies files from inside `docs_dir`, and it does **not** follow
-symlinks, so these assets have to live under `docs/`:
+symlinks, so the theme has to live under `docs/`. Add it as a submodule:
 
 ```shell
-git submodule add https://github.com/Dyalog/documentation-assetsz docs/documentation-assetsz
+git submodule add https://github.com/xpqz/documentation-theme-zensical docs/documentation-theme-zensical
 ```
 
-Then in `zensical.toml`:
+Clone projects that use it with `git clone --recurse-submodules`, or run
+`git submodule update --init` in an existing clone. CI checkouts need
+`submodules: recursive` (`actions/checkout`).
+
+Zensical cannot import configuration from another file, so copy the theme
+settings into the project's `zensical.toml`:
 
 ```toml
 [project]
-extra_css = ["documentation-assetsz/css/dyalog.css"]
+extra_css = ["documentation-theme-zensical/css/dyalog.css"]
+# Keep this README and the LICENCE out of the built site.
+exclude_docs = """
+/documentation-theme-zensical/README.md
+/documentation-theme-zensical/LICENCE
+"""
 
 [project.theme]
 variant = "classic"   # the modern variant barely uses the primary colour
-logo = "documentation-assetsz/images/dyalog-logo_white.svg"
-favicon = "documentation-assetsz/images/dyalog-ide-cube-2025.2.svg"
+logo = "documentation-theme-zensical/images/dyalog-logo_orange.svg"
+favicon = "documentation-theme-zensical/images/dyalog-ide-cube-2025.2.svg"
 font = false          # fonts are self-hosted here, skip Google Fonts
 features = ["content.code.copy", "navigation.sections"]
 
@@ -86,6 +98,28 @@ accent = "custom"
 toggle.icon = "lucide/moon"
 toggle.name = "Switch to light mode"
 ```
+
+Publishing with [mike](https://github.com/squidfunk/mike): after checkout the
+submodule's working tree carries a `.git` pointer file, which Zensical copies
+into the site and mike's `git fast-import` rejects. Delete it before deploying
+(`rm -f docs/documentation-theme-zensical/.git`).
+
+### Fonts on Windows, macOS and Linux
+
+The site needs nothing installed: the stylesheet loads its fonts as `woff2`
+from this directory, so pages render the same on every OS and browser.
+
+To see APL glyphs while authoring, install APL387 as a desktop font for your
+editor. The `woff2` here is a web format that desktop systems do not install;
+take the TTF from the [APL387 releases](https://github.com/Dyalog/APL387/releases):
+
+- **Windows:** right-click `APL387.ttf` and choose *Install* (or *Install for
+  all users*).
+- **macOS:** open `APL387.ttf` and click *Install Font* in Font Book, or copy it
+  to `~/Library/Fonts/`.
+- **Linux:** copy it to `~/.local/share/fonts/` and run `fc-cache -f`.
+
+Then set the editor's font, e.g. in VS Code `"editor.fontFamily": "APL387"`.
 
 ## Design notes
 
